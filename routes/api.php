@@ -8,10 +8,24 @@ use App\Http\Controllers\AuthController;
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth:sanctum');
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/user', function (Request $request) {
+            return $request->user();
+        });
+    });
 });
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('/', function () {
+    return response()->json([
+        'message' => 'API is running',
+        'version' => '1.0.0',
+        'endpoints' => [
+            'POST /api/auth/register' => 'Register a new user',
+            'POST /api/auth/login' => 'Login user',
+            'POST /api/auth/logout' => 'Logout user (requires auth)',
+            'GET /api/auth/user' => 'Get user profile (requires auth)',
+        ]
+    ]);
+});
